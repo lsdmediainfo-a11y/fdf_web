@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FDF TV</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text-color: #ffffff;
+            --accent: #e50914;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding-bottom: 50px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        header {
+            padding: 15px 20px;
+            background: rgba(15,15,15,0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo { font-size: 20px; font-weight: 900; color: var(--accent); }
+        .status { font-size: 12px; color: #4caf50; font-weight: bold; }
+
+        .category-section { margin-top: 20px; }
+        .category-title {
+            padding: 0 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #e5e5e5;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .category-title::before {
+            content: ''; display: block; width: 4px; height: 18px;
+            background-color: var(--accent); border-radius: 2px;
+        }
+
+        .scrolling-wrapper {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 20px 10px 20px;
+            gap: 12px;
+            scrollbar-width: none;
+        }
+        .scrolling-wrapper::-webkit-scrollbar { display: none; }
+
+        .card {
+            flex: 0 0 140px; height: 210px;   
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .card img {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.8;
+        }
+        
+        .card-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 40px 10px 10px 10px;
+            background: linear-gradient(to top, #000 0%, transparent 100%);
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .card-title { font-size: 14px; font-weight: 600; text-shadow: 0 2px 4px black; }
+
+        .badge {
+            position: absolute; top: 8px; right: 8px;
+            background-color: rgba(0,0,0,0.7); color: #fff;
+            font-size: 10px; padding: 3px 6px; border-radius: 4px;
+            font-weight: bold;
+        }
+        .badge.hd { background-color: var(--accent); }
+        .badge.mac { background-color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">FDF TV</div>
+        <div class="status">● Online</div>
+    </header>
+
+    <div id="content-area"></div>
+
+    <script>
+        // Senin Özel Liste Verilerin
+        const playlistData = [
+          {
+            "title": "Canlı Spor",
+            "channels": [
+              {
+                "name": "Zirve Spor",
+                "image": "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=300&auto=format&fit=crop",
+                "url": "exo:https://small-frost-b94d.cornertvfr.workers.dev/live/yayinzirve.m3u8|Referer|https://trgoals1487.xyz|User-Agent|Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "badge": "HD"
+              },
+              {
+                "name": "Yayın Zirve (GRTV)",
+                "image": "https://images.unsplash.com/photo-1579952363873-27f3bde9be51?q=80&w=300&auto=format&fit=crop",
+                "url": "embed:https://grtv60.live/channel?id=yayinzirve|rsvkurali|",
+                "badge": "MAÇ"
+              },
+              {
+                "name": "Canlı Spor Paneli",
+                "image": "https://images.unsplash.com/photo-1551972251-12070d63502a?q=80&w=300&auto=format&fit=crop",
+                "url": "https://divine-recipe-18db.gamedevoloperinfo.workers.dev/grtv/list",
+                "badge": "LİSTE",
+                "type": "web"
+              },
+              {
+                "name": "TRT Spor Yıldız",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/A_Spor_logo.png/640px-A_Spor_logo.png",
+                "url": "exo:https://trthls.TRT.net.tr/tv/trtspor2/hls/720/master.m3u8"
+              }
+            ]
+          },
+          {
+            "title": "Ulusal Kanallar",
+            "channels": [
+              {
+                "name": "TRT 1",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/TRT_1_logo.svg/800px-TRT_1_logo.svg.png",
+                "url": "exo:https://trthls.TRT.net.tr/tv/trt1/hls/720/master.m3u8"
+              },
+              {
+                "name": "Star TV",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/0/05/Star_TV_logo_%282011%29.png",
+                "url": "https://dawn-truth-053f.gamedevoloperinfo.workers.dev/",
+                "type": "web"
+              },
+              {
+                "name": "Kanal D",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Kanal_D_logo.svg/2048px-Kanal_D_logo.svg.png",
+                "url": "exo:https://demiroren-live.daioncdn.net/kanald/kanald.m3u8"
+              },
+              {
+                "name": "24 TV",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/24_TV_logo.png/1200px-24_TV_logo.png",
+                "url": "exo:https://turkmedya-live.daioncdn.net/tv24/tv24.m3u8"
+              }
+            ]
+          },
+          {
+            "title": "Belgesel Kuşağı",
+            "channels": [
+              {
+                "name": "TRT Belgesel",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/8/8f/TRT_Belgesel_logo.png",
+                "url": "exo:https://tv-trtbelgesel.medya.trt.com.tr/master.m3u8"
+              },
+              {
+                "name": "Yaban TV",
+                "image": "https://yt3.googleusercontent.com/ytc/AIdro_kX4_WfJdGDgV_JzWf_JzWf_JzWf_JzWf_JzWf=s900-c-k-c0x00ffffff-no-rj",
+                "url": "exo:https://mn-nl.mncdn.com/yabantv/yabantv/playlist.m3u8"
+              }
+            ]
+          },
+          {
+            "title": "Dizi & Film (Test)",
+            "channels": [
+              {
+                "name": "Dizi Botu",
+                "image": "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=300",
+                "url": "http://infinix1453.pw/fdizi",
+                "type": "web",
+                "badge": "BOT"
+              },
+              {
+                "name": "Big Buck Bunny",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Big_buck_bunny_poster_big.jpg/1200px-Big_buck_bunny_poster_big.jpg",
+                "url": "exo:http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+              }
+            ]
+          }
+        ];
+
+        function renderPlaylist() {
+            const contentArea = document.getElementById('content-area');
+            let html = '';
+
+            playlistData.forEach(category => {
+                html += `
+                <div class="category-section">
+                    <div class="category-title">${category.title}</div>
+                    <div class="scrolling-wrapper">
+                `;
+
+                category.channels.forEach(channel => {
+                    let badgeClass = '';
+                    if (channel.badge === 'HD') badgeClass = 'hd';
+                    if (channel.badge === 'MAÇ') badgeClass = 'mac';
+                    const badgeHtml = channel.badge ? `<span class="badge ${badgeClass}">${channel.badge}</span>` : '';
+                    
+                    // URL'deki tek tırnakları temizle
+                    const safeUrl = channel.url.replace(/'/g, "\\'");
+
+                    html += `
+                        <div class="card" onclick="openLink('${safeUrl}')">
+                            ${badgeHtml}
+                            <img src="${channel.image}" alt="${channel.name}" loading="lazy">
+                            <div class="card-overlay">
+                                <div class="card-title">${channel.name}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            });
+            contentArea.innerHTML = html;
+        }
+
+        function openLink(url) {
+            window.location.href = url;
+        }
+
+        renderPlaylist();
+    </script>
+</body>
+</html>
